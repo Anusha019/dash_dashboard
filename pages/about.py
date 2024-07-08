@@ -3,11 +3,10 @@ from dash import Dash,dcc,html,dash_table,Input, Output
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 gapMinder=pd.read_csv('gapminderDataFiveYear.csv')
 
-app.layout = html.Div([
+about_layout = html.Div([
 
     html.H1("About Page"),
     html.H3("Introduction to GapMinder", style={"textAlign": "center"}),
@@ -48,46 +47,46 @@ app.layout = html.Div([
     dcc.Download(id="download_csv"),
 ])
 
-@app.callback(
-    Output("data_table", "data"),
-    [Input("continent", "value"),
-     Input("country", "value"),
-     Input("pop_slider", "value"),
-     Input("exp_slider", "value")])
+def register_callbacks(app):
+    @app.callback(
+        Output("data_table", "data"),
+        [Input("continent", "value"),
+        Input("country", "value"),
+        Input("pop_slider", "value"),
+        Input("exp_slider", "value")])
 
-def update_dataframe(value_continent, value_country, value_pop, value_exp):
-    df = gapMinder[(gapMinder["continent"] == value_continent)& (gapMinder["country"].isin(value_country))]
-    df = df[(df["pop"] >= value_pop) & (df["lifeExp"] >= value_exp)]
-    return df.to_dict("records")
+    def update_dataframe(value_continent, value_country, value_pop, value_exp):
+        df = gapMinder[(gapMinder["continent"] == value_continent)& (gapMinder["country"].isin(value_country))]
+        df = df[(df["pop"] >= value_pop) & (df["lifeExp"] >= value_exp)]
+        return df.to_dict("records")
 
-@app.callback(
-    Output("country", "options"),
-    [Input("continent", "value")])
+    @app.callback(
+        Output("country", "options"),
+        [Input("continent", "value")])
 
-def country_list(value_continent):
-    df = gapMinder[gapMinder["continent"] == value_continent]
-    return [{"label": country, "value": country} for country in df["country"].unique()]
+    def country_list(value_continent):
+        df = gapMinder[gapMinder["continent"] == value_continent]
+        return [{"label": country, "value": country} for country in df["country"].unique()]
 
-@app.callback(
-    Output("data_table", "page_size"),
-    [Input("page_size", "value")])
+    @app.callback(
+        Output("data_table", "page_size"),
+        [Input("page_size", "value")])
 
-def update_page_size(page_size):
-    if page_size is None:
-        raise PreventUpdate
-    return page_size
+    def update_page_size(page_size):
+        if page_size is None:
+            raise PreventUpdate
+        return page_size
 
 
-@app.callback(
-    Output("download_csv", "data"),
-    [Input("btn_download_csv", "n_clicks"), Input("data_table", "data")])
+    @app.callback(
+        Output("download_csv", "data"),
+        [Input("btn_download_csv", "n_clicks"), Input("data_table", "data")])
 
-def download_csv(n_clicks, data):
-      if n_clicks is not None:
-        df = pd.DataFrame(data)
-        csv_string = df.to_csv(index=False, encoding="utf-8")
-        return dict(content=csv_string, filename="data.csv")
+    def download_csv(n_clicks, data):
+        if n_clicks is not None:
+            df = pd.DataFrame(data)
+            csv_string = df.to_csv(index=False, encoding="utf-8")
+            return dict(content=csv_string, filename="data.csv")
 
-# Run the app
-if __name__ == '__main__':
-    app.run_server(debug=True)
+def layout():
+    return about_layout
