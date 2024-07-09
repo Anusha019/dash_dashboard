@@ -4,10 +4,10 @@ import dash_leaflet as dl
 import pandas as pd
 import plotly.express as px
 
-gapMinder=pd.read_csv('D:/ML Apps/Dash/multipage/gapminderDataFiveYear.csv')
+df=pd.read_csv('D:/ML Apps/Dash/multipage/gapminderDataFiveYear.csv')
 
 simulation_layout = html.Div([
-    dl.Map(dl.TileLayer(),id="map-output",center=[20, 20],zoom=6,
+    dl.Map(dl.TileLayer(),id="map_output",center=[20, 20],zoom=6,
            style={"height": 400,
                   "width": "95%",
                   "margin": "auto",
@@ -78,10 +78,10 @@ simulation_layout = html.Div([
                 ]),
             ]),
         ],
-        style={"display": "inline-block","width": "49%"})],
+        style={"display": "inline-block","width": "50%"})],
         style={"justify-content": "space-between","display": "flex","flex": 1}),
-        dcc.Graph(id="bar_plot_pop"),
-        dcc.Graph(id="bar_plot_gdp"),
+        dcc.Graph(id="pop_plot"),
+        dcc.Graph(id="gdp_plot"),
     ],
 )
 
@@ -102,8 +102,8 @@ def register_callbacks(app):
         return lat, log, state, country
 
     @app.callback(
-        Output("map-output", "children"),
-        Output("map-output", "center"),
+        Output("map_output", "children"),
+        Output("map_output", "center"),
         [Input("lat_store", "data"), Input("long_store", "data")],
         )
 
@@ -124,38 +124,38 @@ def register_callbacks(app):
         )
 
     def country_info(country):
-        gdp_country = gapMinder[gapMinder["country"] == country]
+        gdp_country = df[df["country"] == country]
         gdp = gdp_country[gdp_country["year"] == gdp_country["year"].max()]["gdpPercap"]
 
-        pop_country = gapMinder[gapMinder["country"] == country]
+        pop_country = df[df["country"] == country]
         pop = pop_country[pop_country["year"] == pop_country["year"].max()]["pop"]
 
-        life = gapMinder[gapMinder["country"] == country]["lifeExp"].mean()
+        life = df[df["country"] == country]["lifeExp"].mean()
         return gdp, pop, life
 
 
     @app.callback(
-        Output("bar_plot_pop", "figure"),
+        Output("pop_plot", "figure"),
         [Input("country_store", "data")],
         )
 
     def update_bar_plot(selected_country):
-        filtered_gapMinder = gapMinder[gapMinder["country"] == selected_country]
+        filtered_df = df[df["country"] == selected_country]
 
-        fig = px.bar(filtered_gapMinder,x="year",y="pop",color="lifeExp",
+        fig = px.bar(filtered_df,x="year",y="pop",color="lifeExp",
                     labels={"pop": "Population", "lifeExp": "Life Expectancy"},
                     title=f"Bar Plot for {selected_country}")
         return fig
 
 
     @app.callback(
-        Output("bar_plot_gdp", "figure"),
+        Output("gdp_plot", "figure"),
         [Input("data_store", "data")],
         )
 
     def update_bar_plot(selected_state):
         X = selected_state
-        fig = px.bar(gapMinder,x=X,y="gdpPercap",labels={"gdpPercap": "GDP per capita"},
+        fig = px.bar(df,x=X,y="gdpPercap",labels={"gdpPercap": "GDP per capita"},
                     title=f"GDP per capita over {selected_state}")
         return fig
 
