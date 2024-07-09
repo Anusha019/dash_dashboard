@@ -31,7 +31,7 @@ input_layout=dbc.Container([
         dbc.Col([
             html.H3("Calculated Output"),
             html.Hr(style={"border-width": "1px"}),
-            html.Div(id="output_gen_display"),
+            html.Div(id="display_output"),
         ],style={"width": "50%"})
     ]),
 
@@ -60,7 +60,7 @@ def register_callbacks(app):
         return out_1, out_2, out_3, out_4
 
     @app.callback(
-        Output("output_gen_display", "children"),
+        Output("display_output", "children"),
         Input("simulate-button", "n_clicks")
         )
 
