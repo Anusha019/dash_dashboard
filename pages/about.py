@@ -4,38 +4,38 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 
 
-gapMinder=pd.read_csv('gapminderDataFiveYear.csv')
+df=pd.read_csv('gapminderDataFiveYear.csv')
 
 about_layout = html.Div([
 
     html.H1("About Page"),
-    html.H3("Introduction to GapMinder", style={"textAlign": "center"}),
+    html.H3("Introduction to gapMinder", style={"textAlign": "center"}),
     html.Label("Show no of rows"),
     dcc.Dropdown(id="page_size",
                  options=[{"label": "10", "value": 10},
                           {"label": "50", "value": 50},
                           {"label": "70", "value": 70}],value=10,style={"width": "50%"}),
 
-    dash_table.DataTable(id="data_table",data=gapMinder.to_dict("records"),page_size=10,
+    dash_table.DataTable(id="data_table",data=df.to_dict("records"),page_size=10,
               columns=[{"name": "continent", "id": "continent"},
                        {"name": "country", "id": "country"},
                        {"name": "Population", "id": "pop"},
                        {"name": "Life expectancy", "id": "lifeExp"}]),
     dbc.Row([
         dbc.Col(
-            dcc.Dropdown(id="continent",options=gapMinder["continent"].unique(),value='Asia'),
+            dcc.Dropdown(id="continent",options=df["continent"].unique(),value='Asia'),
             style={"width": 300}
         ),
         dbc.Col(
-            dcc.Dropdown(id="country",options=gapMinder["country"].unique(),value='India',multi=True),
+            dcc.Dropdown(id="country",options=df["country"].unique(),value='India',multi=True),
             style={"width": 300},
         ),
         dbc.Col(
-            dcc.Slider(id="pop_slider",min=gapMinder['pop'].min(), max=gapMinder['pop'].max(),value=gapMinder['pop'].min()),
+            dcc.Slider(id="pop_slider",min=df['pop'].min(), max=df['pop'].max(),value=df['pop'].min()),
             style={"width": 300},
         ),
         dbc.Col(
-            dcc.Slider(id="exp_slider",min=gapMinder["lifeExp"].min(),max=gapMinder["lifeExp"].max(),value=60),
+            dcc.Slider(id="exp_slider",min=df["lifeExp"].min(),max=df["lifeExp"].max(),value=60),
             style={"width": 300},
         ),
     ],
@@ -56,7 +56,7 @@ def register_callbacks(app):
         Input("exp_slider", "value")])
 
     def update_dataframe(value_continent, value_country, value_pop, value_exp):
-        df = gapMinder[(gapMinder["continent"] == value_continent)& (gapMinder["country"].isin(value_country))]
+        df = df[(df["continent"] == value_continent)& (df["country"].isin(value_country))]
         df = df[(df["pop"] >= value_pop) & (df["lifeExp"] >= value_exp)]
         return df.to_dict("records")
 
@@ -65,7 +65,7 @@ def register_callbacks(app):
         [Input("continent", "value")])
 
     def country_list(value_continent):
-        df = gapMinder[gapMinder["continent"] == value_continent]
+        df = df[df["continent"] == value_continent]
         return [{"label": country, "value": country} for country in df["country"].unique()]
 
     @app.callback(
