@@ -1,4 +1,4 @@
-# dash_dashboard
+# Dash_dashboard
 This assignment involves creating a webpage using Dash and Dash Bootstrap components to display and interact with data from the GapMinder dataset.
 
 ### About Page consists
